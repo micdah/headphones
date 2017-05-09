@@ -389,16 +389,6 @@ class WebInterface(object):
                 searcher.searchforalbum(mbid, new=True)
             if action == 'WantedLossless':
                 searcher.searchforalbum(mbid, lossless=True)
-            if action == 'Downloaded':
-                logger.info("Setting fake location for all tracks for album %s" % (mbid))
-                myDB.action('UPDATE tracks SET Location=? WHERE AlbumID=?', ['/dev/null', mbid])
-                logger.info("Updating HaveTracks for artist %s" % (ArtistIDT))
-                myDB.action('UPDATE artists SET HaveTracks=(SELECT COUNT(*) FROM tracks WHERE ArtistID=? AND AlbumTitle IN (SELECT AlbumTitle FROM albums WHERE Status != "Ignored") AND Location IS NOT NULL) WHERE ArtistID=?',[ArtistIDT,ArtistIDT])
-            if action == 'Wanted' or action == 'WantedNew' or action == 'WantedLossless':
-                logger.info("Removing fake location for all tracks for album %s" % (mbid))
-                myDB.action('UPDATE tracks SET Location=NULL WHERE AlbumID=?', [mbid])
-                logger.info("Updating HaveTracks for artist %s" % (ArtistIDT))
-                myDB.action('UPDATE artists SET HaveTracks=(SELECT COUNT(*) FROM tracks WHERE ArtistID=? AND AlbumTitle IN (SELECT AlbumTitle FROM albums WHERE Status != "Ignored") AND Location IS NOT NULL) WHERE ArtistID=?',[ArtistIDT,ArtistIDT])
             if ArtistID:
                 ArtistIDT = ArtistID
             else:
@@ -406,6 +396,21 @@ class WebInterface(object):
             myDB.action(
                 'UPDATE artists SET TotalTracks=(SELECT COUNT(*) FROM tracks WHERE ArtistID = ? AND AlbumTitle IN (SELECT AlbumTitle FROM albums WHERE Status != "Ignored")) WHERE ArtistID = ?',
                 [ArtistIDT, ArtistIDT])
+            # FAKE LOCATION
+            if action == 'Downloaded':
+                # Set fake location
+                logger.info("Setting fake location for all tracks for album %s" % (mbid))
+                myDB.action('UPDATE tracks SET Location=? WHERE AlbumID=?', ['/dev/null', mbid])
+                # Update HaveTracks for artist
+                logger.info("Updating HaveTracks for artist %s" % (ArtistIDT))
+                myDB.action('UPDATE artists SET HaveTracks=(SELECT COUNT(*) FROM tracks WHERE ArtistID=? AND AlbumTitle IN (SELECT AlbumTitle FROM albums WHERE Status != "Ignored") AND Location IS NOT NULL) WHERE ArtistID=?',[ArtistIDT,ArtistIDT])
+            if action == 'Wanted' or action == 'WantedNew' or action == 'WantedLossless':
+                # Remove fake location
+                logger.info("Removing fake location for all tracks for album %s" % (mbid))
+                myDB.action('UPDATE tracks SET Location=NULL WHERE AlbumID=?', [mbid])
+                # Update HaveTracks for artist
+                logger.info("Updating HaveTracks for artist %s" % (ArtistIDT))
+                myDB.action('UPDATE artists SET HaveTracks=(SELECT COUNT(*) FROM tracks WHERE ArtistID=? AND AlbumTitle IN (SELECT AlbumTitle FROM albums WHERE Status != "Ignored") AND Location IS NOT NULL) WHERE ArtistID=?',[ArtistIDT,ArtistIDT])
         if ArtistID:
             raise cherrypy.HTTPRedirect("artistPage?ArtistID=%s" % ArtistID)
         else:
