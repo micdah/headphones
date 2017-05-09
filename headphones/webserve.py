@@ -381,7 +381,7 @@ class WebInterface(object):
         for mbid in args:
             logger.info("Marking %s as %s" % (mbid, newaction))
             controlValueDict = {'AlbumID': mbid}
-            newValueDict = {'Status': newaction}
+            newValueDict = {'Status': newaction, 'Location': '/dev/null'}
             myDB.upsert("albums", newValueDict, controlValueDict)
             if action == 'Wanted':
                 searcher.searchforalbum(mbid, new=False)
