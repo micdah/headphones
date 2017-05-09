@@ -396,7 +396,7 @@ class WebInterface(object):
                 myDB.action('UPDATE artists SET HaveTracks=(SELECT COUNT(*) FROM tracks WHERE ArtistID=? AND AlbumTitle IN (SELECT AlbumTitle FROM albums WHERE Status != "Ignored") AND Location IS NOT NULL) WHERE ArtistID=?',[ArtistIDT,ArtistIDT])
             if action == 'Wanted' or action == 'WantedNew' or action == 'WantedLossless':
                 logger.info("Removing fake location for all tracks for album %s" % (mbid))
-                myDB.action('UPDATE tracks SET Location=NULL WHERE AlbumID=?', ['/dev/null', mbid])
+                myDB.action('UPDATE tracks SET Location=NULL WHERE AlbumID=?', [mbid])
                 logger.info("Updating HaveTracks for artist %s" % (ArtistIDT))
                 myDB.action('UPDATE artists SET HaveTracks=(SELECT COUNT(*) FROM tracks WHERE ArtistID=? AND AlbumTitle IN (SELECT AlbumTitle FROM albums WHERE Status != "Ignored") AND Location IS NOT NULL) WHERE ArtistID=?',[ArtistIDT,ArtistIDT])
             if ArtistID:
