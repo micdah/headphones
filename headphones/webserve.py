@@ -383,6 +383,8 @@ class WebInterface(object):
             controlValueDict = {'AlbumID': mbid}
             newValueDict = {'Status': newaction, 'Location': '/dev/null'}
             myDB.upsert("albums", newValueDict, controlValueDict)
+            logger.info("Setting location for all tracks")
+            myDB.action('UPDATE tracks SET Location=? WHERE AlbumID=?', ['/dev/null', mbid])
             if action == 'Wanted':
                 searcher.searchforalbum(mbid, new=False)
             if action == 'WantedNew':
