@@ -381,7 +381,7 @@ class WebInterface(object):
         for mbid in args:
             logger.info("Marking %s as %s" % (mbid, newaction))
             controlValueDict = {'AlbumID': mbid}
-            newValueDict = {'Status': newaction, 'Location': '/dev/null'}
+            newValueDict = {'Status': newaction}
             myDB.upsert("albums", newValueDict, controlValueDict)
             logger.info("Setting location for all tracks")
             myDB.action('UPDATE tracks SET Location=? WHERE AlbumID=?', ['/dev/null', mbid])
