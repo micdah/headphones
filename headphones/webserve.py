@@ -383,8 +383,6 @@ class WebInterface(object):
             controlValueDict = {'AlbumID': mbid}
             newValueDict = {'Status': newaction}
             myDB.upsert("albums", newValueDict, controlValueDict)
-            logger.info("Setting location for all tracks")
-            myDB.action('UPDATE tracks SET Location=? WHERE AlbumID=?', ['/dev/null', mbid])
             if action == 'Wanted':
                 searcher.searchforalbum(mbid, new=False)
             if action == 'WantedNew':
@@ -398,6 +396,10 @@ class WebInterface(object):
             myDB.action(
                 'UPDATE artists SET TotalTracks=(SELECT COUNT(*) FROM tracks WHERE ArtistID = ? AND AlbumTitle IN (SELECT AlbumTitle FROM albums WHERE Status != "Ignored")) WHERE ArtistID = ?',
                 [ArtistIDT, ArtistIDT])
+            logger.info("Setting location for all tracks for album %s" % (mbid))
+            myDB.action('UPDATE tracks SET Location=? WHERE AlbumID=?', ['/dev/null', mbid])
+            logger.info("Setting HaveTracks for artist %s" % (ArtistIDT))
+            myDB.action('UPDATE artists SET HaveTracks=(SELECT COUNT(*) FROM tracks WHERE AtistID=? AND AlbumTitle IN (SELECT AlbumTitle FROM albums WHERE Status != "Ignored") AND Location IS NOT NULL) WHERE ArtistID=?',[ArtistIDT])
         if ArtistID:
             raise cherrypy.HTTPRedirect("artistPage?ArtistID=%s" % ArtistID)
         else:
